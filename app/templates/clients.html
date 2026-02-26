@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Clients{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Clients</h1>
+    <a href="{{ url_for('main.add_client') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Add client
+    </a>
+</div>
+
+<div class="table-wrap">
+    <div class="table-toolbar">
+        <form method="GET" class="d-flex gap-2 flex-wrap" style="flex:1">
+            <div class="search-wrap" style="min-width:220px">
+                <i class="bi bi-search"></i>
+                <input type="text" name="search" class="form-control"
+                       placeholder="Search by name..."
+                       value="{{ request.args.get('search', '') }}"
+                       style="width:260px">
+            </div>
+            <button type="submit" class="btn btn-outline-secondary">Search</button>
+            {% if request.args.get('search') %}
+            <a href="{{ url_for('main.clients') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg"></i>
+            </a>
+            {% endif %}
+        </form>
+        <div style="color:#6b7280;font-size:13px">
+            {{ clients|length }} records
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-borderless">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Клиент</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th style="text-align:right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                <tr>
+                    <td style="color:#6b7280;font-size:12px">{{ client.id }}</td>
+                    <td>
+                        <div style="font-weight:500">{{ client.name }}</div>
+                    </td>
+                    <td style="color:#6b7280">{{ client.phone or '—' }}</td>
+                    <td style="color:#6b7280">{{ client.email or '—' }}</td>
+                    <td>
+                        {% if client.status == 'new' %}
+                            <span class="status-badge status-new">New</span>
+                        {% elif client.status == 'in_progress' %}
+                            <span class="status-badge status-progress">In progress</span>
+                        {% elif client.status == 'closed' %}
+                            <span class="status-badge status-closed">Closed</span>
+                        {% endif %}
+                    </td>
+                    <td style="color:#6b7280;font-size:12px">
+                        {{ client.created_at.strftime('%d.%m.%Y') if client.created_at else '—' }}
+                    </td>
+                    <td style="text-align:right">
+                        <a href="{{ url_for('main.edit_client', id=client.id) }}"
+                           class="btn-icon edit" title="Edit">
+                            <i class="bi bi-pencil" style="font-size:13px"></i>
+                        </a>
+                        {% if current_user.role == "admin" %}
+                        <form method="POST"
+                              action="{{ url_for('main.delete_client', id=client.id) }}"
+                              class="d-inline"
+                              onsubmit="return confirm('Delete client {{ client.name }}?')">
+                            <input type="hidden" name="csrf_token" value="{{ session.get('_csrf_token','') }}">
+                            <button type="submit" class="btn-icon danger" title="Delete">
+                                <i class="bi bi-trash3" style="font-size:13px"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if not clients %}
+        <div style="text-align:center;padding:48px;color:#6b7280">
+            <i class="bi bi-inbox" style="font-size:40px;display:block;margin-bottom:12px;opacity:.4"></i>
+            No clients found
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

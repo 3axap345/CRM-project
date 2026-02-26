@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Edit{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Edit client</h1>
+    <a href="{{ url_for('main.clients') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span>Client details</span>
+                <span style="font-size:12px;color:#6b7280">ID: {{ client.id }}</span>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ session.get('_csrf_token','') }}">
+
+                    <div class="mb-3">
+                        <label class="form-label">Имя <span style="color:#f43f5e">*</span></label>
+                        <input type="text" name="name" class="form-control"
+                               value="{{ client.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="text" name="phone" class="form-control"
+                               value="{{ client.phone or '' }}" placeholder="+1 555 000 0000">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control"
+                               value="{{ client.email or '' }}" placeholder="client@example.com">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="new"         {% if client.status == 'new' %}selected{% endif %}>🟢 New</option>
+                            <option value="in_progress" {% if client.status == 'in_progress' %}selected{% endif %}>🟡 In progress</option>
+                            <option value="closed"      {% if client.status == 'closed' %}selected{% endif %}>⚪ Closed</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">
+                            <i class="bi bi-check-lg me-1"></i> Save
+                        </button>
+                        <a href="{{ url_for('main.clients') }}" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

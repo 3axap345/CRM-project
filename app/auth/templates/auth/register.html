@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация — CRM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --bg:#0d0f14;--surface:#13161e;--surface2:#1a1e2a;--border:#252836;--accent:#5b6ef5;--text:#e8eaf0;--muted:#6b7280; }
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+        body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(91,110,245,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(91,110,245,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;}
+        .auth-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:40px 36px;}
+        .auth-logo{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:28px;}
+        .logo-icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#5b6ef5,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:18px;}
+        .logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;}
+        .logo-text span{color:#5b6ef5;}
+        h2{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-bottom:6px;text-align:center;}
+        .subtitle{color:var(--muted);font-size:13.5px;text-align:center;margin-bottom:28px;}
+        .form-label{font-size:13px;font-weight:500;color:var(--muted);margin-bottom:6px;}
+        .form-control{background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:10px 14px;transition:border-color .15s,box-shadow .15s;}
+        .form-control:focus{background:var(--surface2);border-color:#5b6ef5;color:var(--text);box-shadow:0 0 0 3px rgba(91,110,245,.15);outline:none;}
+        .form-control::placeholder{color:var(--muted);}
+        .btn-register{width:100%;background:#5b6ef5;border:none;border-radius:10px;color:#fff;font-weight:600;font-size:15px;padding:11px;cursor:pointer;transition:opacity .15s,transform .15s;margin-top:4px;}
+        .btn-register:hover{opacity:.88;transform:translateY(-1px);}
+        .field-error{color:#f43f5e;font-size:12px;margin-top:4px;}
+        .footer-link{text-align:center;margin-top:20px;font-size:13px;color:var(--muted);}
+        .footer-link a{color:#5b6ef5;text-decoration:none;}
+    </style>
+</head>
+<body>
+<div class="auth-card">
+    <div class="auth-logo">
+        <div class="logo-icon">⚡</div>
+        <div class="logo-text">CRM<span>Pro</span></div>
+    </div>
+    <h2>Create account</h2>
+    <p class="subtitle">Fill in your details to register</p>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            <label class="form-label">Username</label>
+            {{ form.username(class="form-control", placeholder="username") }}
+            {% for e in form.username.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            {{ form.email(class="form-control", placeholder="you@example.com") }}
+            {% for e in form.email.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            {{ form.password(class="form-control", placeholder="••••••••") }}
+            {% for e in form.password.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="mb-4">
+            <label class="form-label">Confirm password</label>
+            {{ form.confirm_password(class="form-control", placeholder="••••••••") }}
+            {% for e in form.confirm_password.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+        </div>
+        <button type="submit" class="btn-register">Create account</button>
+    </form>
+
+    <div class="footer-link">
+        Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+    </div>
+</div>
+</body>
+</html>
