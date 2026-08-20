@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}New deal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>New deal</h1>
+    <a href="{{ url_for('deals.deals') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header">Deal details</div>
+            <div class="card-body">
+                {% include "deals/deal_form.html" %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

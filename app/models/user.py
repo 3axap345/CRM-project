@@ -3,6 +3,24 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from app.extensions import db
 
+DEAL_STATUS_NEW = "new"
+DEAL_STATUS_QUALIFIED = "qualified"
+DEAL_STATUS_PROPOSAL = "proposal"
+DEAL_STATUS_NEGOTIATION = "negotiation"
+DEAL_STATUS_WON = "won"
+DEAL_STATUS_LOST = "lost"
+
+DEAL_STATUS_CHOICES = (
+    (DEAL_STATUS_NEW, "New"),
+    (DEAL_STATUS_QUALIFIED, "Qualified"),
+    (DEAL_STATUS_PROPOSAL, "Proposal"),
+    (DEAL_STATUS_NEGOTIATION, "Negotiation"),
+    (DEAL_STATUS_WON, "Won"),
+    (DEAL_STATUS_LOST, "Lost"),
+)
+DEAL_STATUS_VALUES = tuple(value for value, _ in DEAL_STATUS_CHOICES)
+CLOSED_DEAL_STATUSES = (DEAL_STATUS_WON, DEAL_STATUS_LOST)
+
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -41,6 +59,44 @@ class Client(db.Model):
         db.ForeignKey("users.id", name="fk_client_manager"),
         nullable=True
     )
+
+    manager = db.relationship("User", backref=db.backref("clients", lazy="dynamic"))
+
+
+class Deal(db.Model):
+    __tablename__ = "deals"
+    __table_args__ = (
+        db.CheckConstraint(
+            f"status IN {DEAL_STATUS_VALUES}",
+            name="ck_deals_status_valid",
+        ),
+        db.CheckConstraint("amount >= 0", name="ck_deals_amount_non_negative"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(160), nullable=False)
+    description = db.Column(db.Text)
+    amount = db.Column(db.Numeric(12, 2), nullable=False, default=0)
+    status = db.Column(db.String(50), default=DEAL_STATUS_NEW, nullable=False)
+    client_id = db.Column(
+        db.Integer,
+        db.ForeignKey("clients.id", name="fk_deal_client", ondelete="CASCADE"),
+        nullable=False
+    )
+    manager_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", name="fk_deal_manager", ondelete="CASCADE"),
+        nullable=False
+    )
+    created_at = db.Column(db.DateTime, default=db.func.now())
+    updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
+    closed_at = db.Column(db.DateTime)
+
+    client = db.relationship(
+        "Client",
+        backref=db.backref("deals", lazy="dynamic", cascade="all, delete-orphan"),
+    )
+    manager = db.relationship("User", backref=db.backref("deals", lazy="dynamic"))
 
 
 class ClientActivity(db.Model):

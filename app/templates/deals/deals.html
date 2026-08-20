@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Deals{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Deals</h1>
+    <a href="{{ url_for('deals.add_deal') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Add deal
+    </a>
+</div>
+
+<div class="table-wrap">
+    <div class="table-toolbar">
+        <form method="GET" class="d-flex gap-2 flex-wrap" style="flex:1">
+            <div class="search-wrap" style="min-width:220px">
+                <i class="bi bi-search"></i>
+                <input type="text" name="search" class="form-control"
+                       placeholder="Search deals..."
+                       value="{{ request.args.get('search', '') }}"
+                       style="width:260px">
+            </div>
+            <select name="status" class="form-select" style="width:180px">
+                <option value="">All statuses</option>
+                {% for value, label in deal_status_choices %}
+                <option value="{{ value }}" {% if request.args.get('status') == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-outline-secondary">Filter</button>
+            {% if request.args.get('search') or request.args.get('status') %}
+            <a href="{{ url_for('deals.deals') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg"></i>
+            </a>
+            {% endif %}
+        </form>
+        <div style="color:#6b7280;font-size:13px">
+            {{ deals|length }} records
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-borderless">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Deal</th>
+                    <th>Client</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th style="text-align:right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for deal in deals %}
+                <tr>
+                    <td style="color:#6b7280;font-size:12px">{{ deal.id }}</td>
+                    <td>
+                        <a href="{{ url_for('deals.deal_detail', id=deal.id) }}"
+                           style="font-weight:500;color:#e8eaf0;text-decoration:none">
+                            {{ deal.title }}
+                        </a>
+                    </td>
+                    <td style="color:#6b7280">{{ deal.client.name }}</td>
+                    <td style="font-weight:600">${{ "%.2f"|format(deal.amount) }}</td>
+                    <td>
+                        <span class="status-badge status-{{ deal.status }}">{{ deal.status.replace('_', ' ').title() }}</span>
+                    </td>
+                    <td style="color:#6b7280;font-size:12px">
+                        {{ deal.created_at.strftime('%d.%m.%Y') if deal.created_at else '—' }}
+                    </td>
+                    <td style="text-align:right">
+                        <a href="{{ url_for('deals.edit_deal', id=deal.id) }}"
+                           class="btn-icon edit" title="Edit">
+                            <i class="bi bi-pencil" style="font-size:13px"></i>
+                        </a>
+                        <form method="POST"
+                              action="{{ url_for('deals.delete_deal', id=deal.id) }}"
+                              class="d-inline"
+                              onsubmit="return confirm('Delete deal {{ deal.title }}?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn-icon danger" title="Delete">
+                                <i class="bi bi-trash3" style="font-size:13px"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if not deals %}
+        <div style="text-align:center;padding:48px;color:#6b7280">
+            <i class="bi bi-cash-stack" style="font-size:40px;display:block;margin-bottom:12px;opacity:.4"></i>
+            No deals found
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,5 +1,5 @@
 from app.extensions import db
-from app.models.user import Client, User
+from app.models.user import Client, Deal, User
 
 
 def create_user(username, email, password="password", role="manager"):
@@ -15,6 +15,19 @@ def create_client_record(name, manager_id, status="new"):
     db.session.add(client)
     db.session.commit()
     return client
+
+
+def create_deal_record(title, client_id, manager_id, amount="1000.00", status="new"):
+    deal = Deal(
+        title=title,
+        client_id=client_id,
+        manager_id=manager_id,
+        amount=amount,
+        status=status,
+    )
+    db.session.add(deal)
+    db.session.commit()
+    return deal
 
 
 def login(test_client, email, password="password"):
