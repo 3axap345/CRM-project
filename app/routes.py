@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 from app import db
+from app.dashboard import build_dashboard_metrics, client_query_for_user
 from app.forms import ClientForm, InteractionForm
 from app.models.user import Client, Interaction
 
@@ -8,10 +9,7 @@ main_bp = Blueprint("main", __name__)
 
 
 def client_query_for_current_user():
-    query = Client.query
-    if current_user.role != "admin":
-        query = query.filter_by(manager_id=current_user.id)
-    return query
+    return client_query_for_user(current_user)
 
 
 def get_visible_client_or_404(client_id):
@@ -24,20 +22,8 @@ def get_visible_client_or_404(client_id):
 @main_bp.route("/")
 @login_required
 def home():
-    client_query = client_query_for_current_user()
-    total_clients = client_query.count()
-
-    new_count = client_query_for_current_user().filter_by(status="new").count()
-    in_progress_count = client_query_for_current_user().filter_by(status="in_progress").count()
-    closed_count = client_query_for_current_user().filter_by(status="closed").count()
-
-    return render_template(
-        "dashboard.html",
-        total_clients=total_clients,
-        new_count=new_count,
-        in_progress_count=in_progress_count,
-        closed_count=closed_count
-    )
+    metrics = build_dashboard_metrics(current_user)
+    return render_template("dashboard.html", **metrics)
 
 
 @main_bp.route("/clients")
