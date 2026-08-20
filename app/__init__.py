@@ -1,6 +1,7 @@
 from flask import Flask
 from .config import Config
 from .extensions import csrf, db, login_manager, migrate
+from app.api.routes import api_bp
 from app.models import User
 from app.auth.routes import auth_bp
 from app.deals.routes import deals_bp
@@ -23,6 +24,8 @@ def create_app():
     app.register_blueprint(main_bp)
     app.register_blueprint(deals_bp)
     app.register_blueprint(tasks_bp)
+    csrf.exempt(api_bp)
+    app.register_blueprint(api_bp)
 
     @login_manager.user_loader
     def load_user(user_id):
