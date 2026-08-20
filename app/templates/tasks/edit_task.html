@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Edit task{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Edit task</h1>
+    <a href="{{ url_for('tasks.tasks') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span>Task details</span>
+                <span style="font-size:12px;color:#6b7280">ID: {{ task.id }}</span>
+            </div>
+            <div class="card-body">
+                {% include "tasks/task_form.html" %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

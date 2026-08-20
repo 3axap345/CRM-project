@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Tasks{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Tasks</h1>
+    <a href="{{ url_for('tasks.add_task') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Add task
+    </a>
+</div>
+
+<div class="table-wrap">
+    <div class="table-toolbar">
+        <form method="GET" class="d-flex gap-2 flex-wrap" style="flex:1">
+            <div class="search-wrap" style="min-width:220px">
+                <i class="bi bi-search"></i>
+                <input type="text" name="search" class="form-control"
+                       placeholder="Search tasks..."
+                       value="{{ request.args.get('search', '') }}"
+                       style="width:240px">
+            </div>
+            <select name="status" class="form-select" style="width:160px">
+                <option value="">All statuses</option>
+                {% for value, label in task_status_choices %}
+                <option value="{{ value }}" {% if request.args.get('status') == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+            <select name="priority" class="form-select" style="width:160px">
+                <option value="">All priorities</option>
+                {% for value, label in task_priority_choices %}
+                <option value="{{ value }}" {% if request.args.get('priority') == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-outline-secondary">Filter</button>
+            <a href="{{ url_for('tasks.tasks', overdue=1) }}" class="btn btn-outline-secondary">
+                <i class="bi bi-exclamation-triangle me-1"></i> Overdue
+            </a>
+            {% if request.args.get('search') or request.args.get('status') or request.args.get('priority') or request.args.get('overdue') %}
+            <a href="{{ url_for('tasks.tasks') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg"></i>
+            </a>
+            {% endif %}
+        </form>
+        <div style="color:#6b7280;font-size:13px">
+            {{ tasks|length }} records
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-borderless">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Task</th>
+                    <th>Related</th>
+                    <th>Due</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th style="text-align:right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td style="color:#6b7280;font-size:12px">{{ task.id }}</td>
+                    <td>
+                        <div style="font-weight:500">{{ task.title }}</div>
+                        {% if task.description %}
+                        <div style="color:#6b7280;font-size:12px">{{ task.description[:80] }}</div>
+                        {% endif %}
+                    </td>
+                    <td style="color:#6b7280">
+                        {% if task.client %}<div>{{ task.client.name }}</div>{% endif %}
+                        {% if task.deal %}<div style="font-size:12px">{{ task.deal.title }}</div>{% endif %}
+                        {% if not task.client and not task.deal %}—{% endif %}
+                    </td>
+                    <td style="color:{% if task.due_date and task.due_date < today and task.status != 'done' %}#f43f5e{% else %}#6b7280{% endif %};font-size:12px">
+                        {{ task.due_date.strftime('%d.%m.%Y') if task.due_date else '—' }}
+                    </td>
+                    <td>
+                        <span class="status-badge status-{{ task.status }}">{{ task.status.replace('_', ' ').title() }}</span>
+                    </td>
+                    <td>
+                        <span class="status-badge priority-{{ task.priority }}">{{ task.priority.title() }}</span>
+                    </td>
+                    <td style="text-align:right">
+                        {% if task.status != 'done' %}
+                        <form method="POST"
+                              action="{{ url_for('tasks.complete_task', id=task.id) }}"
+                              class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn-icon" title="Mark done">
+                                <i class="bi bi-check2" style="font-size:14px"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                        <a href="{{ url_for('tasks.edit_task', id=task.id) }}"
+                           class="btn-icon edit" title="Edit">
+                            <i class="bi bi-pencil" style="font-size:13px"></i>
+                        </a>
+                        <form method="POST"
+                              action="{{ url_for('tasks.delete_task', id=task.id) }}"
+                              class="d-inline"
+                              onsubmit="return confirm('Delete task {{ task.title }}?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn-icon danger" title="Delete">
+                                <i class="bi bi-trash3" style="font-size:13px"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if not tasks %}
+        <div style="text-align:center;padding:48px;color:#6b7280">
+            <i class="bi bi-check2-square" style="font-size:40px;display:block;margin-bottom:12px;opacity:.4"></i>
+            No tasks found
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

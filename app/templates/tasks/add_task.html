@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}New task{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>New task</h1>
+    <a href="{{ url_for('tasks.tasks') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header">Task details</div>
+            <div class="card-body">
+                {% include "tasks/task_form.html" %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

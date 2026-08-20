@@ -5,6 +5,7 @@ from app.models import User
 from app.auth.routes import auth_bp
 from app.deals.routes import deals_bp
 from app.routes import main_bp
+from app.tasks.routes import tasks_bp
 
 
 def create_app():
@@ -21,6 +22,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(deals_bp)
+    app.register_blueprint(tasks_bp)
 
     @login_manager.user_loader
     def load_user(user_id):

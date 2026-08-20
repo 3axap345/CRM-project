@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import DecimalField, SelectField, StringField, SubmitField, TextAreaField
+from wtforms import DateField, DecimalField, SelectField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length, NumberRange, Optional
 
-from app.models.user import DEAL_STATUS_CHOICES
+from app.models.user import DEAL_STATUS_CHOICES, TASK_PRIORITY_CHOICES, TASK_STATUS_CHOICES
 
 
 class ClientForm(FlaskForm):
@@ -31,4 +31,16 @@ class DealForm(FlaskForm):
     )
     status = SelectField("Status", choices=list(DEAL_STATUS_CHOICES), default="new")
     client_id = SelectField("Client", coerce=int, validators=[DataRequired()])
+    submit = SubmitField("Save")
+
+
+class TaskForm(FlaskForm):
+    title = StringField("Title", validators=[DataRequired(), Length(max=160)])
+    description = TextAreaField("Description", validators=[Optional(), Length(max=2000)])
+    due_date = DateField("Due date", validators=[Optional()])
+    status = SelectField("Status", choices=list(TASK_STATUS_CHOICES), default="todo")
+    priority = SelectField("Priority", choices=list(TASK_PRIORITY_CHOICES), default="medium")
+    client_id = SelectField("Client", coerce=int, validators=[Optional()])
+    deal_id = SelectField("Deal", coerce=int, validators=[Optional()])
+    assigned_to = SelectField("Assigned to", coerce=int, validators=[DataRequired()])
     submit = SubmitField("Save")

@@ -21,6 +21,28 @@ DEAL_STATUS_CHOICES = (
 DEAL_STATUS_VALUES = tuple(value for value, _ in DEAL_STATUS_CHOICES)
 CLOSED_DEAL_STATUSES = (DEAL_STATUS_WON, DEAL_STATUS_LOST)
 
+TASK_STATUS_TODO = "todo"
+TASK_STATUS_IN_PROGRESS = "in_progress"
+TASK_STATUS_DONE = "done"
+
+TASK_STATUS_CHOICES = (
+    (TASK_STATUS_TODO, "To do"),
+    (TASK_STATUS_IN_PROGRESS, "In progress"),
+    (TASK_STATUS_DONE, "Done"),
+)
+TASK_STATUS_VALUES = tuple(value for value, _ in TASK_STATUS_CHOICES)
+
+TASK_PRIORITY_LOW = "low"
+TASK_PRIORITY_MEDIUM = "medium"
+TASK_PRIORITY_HIGH = "high"
+
+TASK_PRIORITY_CHOICES = (
+    (TASK_PRIORITY_LOW, "Low"),
+    (TASK_PRIORITY_MEDIUM, "Medium"),
+    (TASK_PRIORITY_HIGH, "High"),
+)
+TASK_PRIORITY_VALUES = tuple(value for value, _ in TASK_PRIORITY_CHOICES)
+
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -97,6 +119,51 @@ class Deal(db.Model):
         backref=db.backref("deals", lazy="dynamic", cascade="all, delete-orphan"),
     )
     manager = db.relationship("User", backref=db.backref("deals", lazy="dynamic"))
+
+
+class Task(db.Model):
+    __tablename__ = "tasks"
+    __table_args__ = (
+        db.CheckConstraint(
+            f"status IN {TASK_STATUS_VALUES}",
+            name="ck_tasks_status_valid",
+        ),
+        db.CheckConstraint(
+            f"priority IN {TASK_PRIORITY_VALUES}",
+            name="ck_tasks_priority_valid",
+        ),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(160), nullable=False)
+    description = db.Column(db.Text)
+    due_date = db.Column(db.Date)
+    status = db.Column(db.String(50), default=TASK_STATUS_TODO, nullable=False)
+    priority = db.Column(db.String(50), default=TASK_PRIORITY_MEDIUM, nullable=False)
+    client_id = db.Column(
+        db.Integer,
+        db.ForeignKey("clients.id", name="fk_task_client", ondelete="CASCADE"),
+        nullable=True
+    )
+    deal_id = db.Column(
+        db.Integer,
+        db.ForeignKey("deals.id", name="fk_task_deal", ondelete="SET NULL"),
+        nullable=True
+    )
+    assigned_to = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", name="fk_task_assigned_user", ondelete="CASCADE"),
+        nullable=False
+    )
+    created_at = db.Column(db.DateTime, default=db.func.now())
+    completed_at = db.Column(db.DateTime)
+
+    client = db.relationship(
+        "Client",
+        backref=db.backref("tasks", lazy="dynamic", cascade="all, delete-orphan"),
+    )
+    deal = db.relationship("Deal", backref=db.backref("tasks", lazy="dynamic"))
+    assignee = db.relationship("User", backref=db.backref("tasks", lazy="dynamic"))
 
 
 class ClientActivity(db.Model):
