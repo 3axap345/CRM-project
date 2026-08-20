@@ -3,7 +3,6 @@ from decimal import Decimal
 
 from sqlalchemy import func
 
-from app.extensions import db
 from app.models.user import (
     DEAL_STATUS_CHOICES,
     DEAL_STATUS_LOST,

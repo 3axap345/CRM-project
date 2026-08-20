@@ -77,7 +77,7 @@ def test_api_client_crud_and_delete_permission(client, app):
 
 def test_api_manager_cannot_get_other_client(client, app):
     with app.app_context():
-        first = create_user("first", "first@example.com")
+        create_user("first", "first@example.com")
         second = create_user("second", "second@example.com")
         hidden = create_client_record("Hidden client", second.id)
         hidden_id = hidden.id
@@ -193,7 +193,7 @@ def test_api_task_crud_filters_and_permissions(client, app):
 
 def test_api_manager_cannot_assign_task_to_another_user(client, app):
     with app.app_context():
-        first = create_user("first", "first@example.com")
+        create_user("first", "first@example.com")
         second = create_user("second", "second@example.com")
         second_id = second.id
 

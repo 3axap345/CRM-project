@@ -45,7 +45,7 @@ def test_manager_sees_only_own_clients(client, app):
 
 def test_manager_cannot_edit_other_manager_client(client, app):
     with app.app_context():
-        first = create_user("first", "first@example.com")
+        create_user("first", "first@example.com")
         second = create_user("second", "second@example.com")
         hidden = create_client_record("Hidden client", second.id)
         hidden_id = hidden.id

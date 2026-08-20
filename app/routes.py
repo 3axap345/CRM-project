@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
-from flask_login import login_required, current_user
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required
+
 from app import db
 from app.dashboard import build_dashboard_metrics, client_query_for_user
 from app.forms import ClientForm, InteractionForm
@@ -157,8 +158,9 @@ def admin():
     if current_user.role != "admin":
         abort(403)
 
-    from app.models.user import User
     from sqlalchemy import func
+
+    from app.models.user import User
 
     users = User.query.order_by(User.created_at.desc()).all()
 

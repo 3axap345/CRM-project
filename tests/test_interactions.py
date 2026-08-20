@@ -43,7 +43,7 @@ def test_manager_adds_interaction_to_own_client(client, app):
 
 def test_manager_cannot_view_or_add_interaction_to_other_client(client, app):
     with app.app_context():
-        first = create_user("first", "first@example.com")
+        create_user("first", "first@example.com")
         second = create_user("second", "second@example.com")
         hidden_client = create_client_record("Hidden client", second.id)
         hidden_client_id = hidden_client.id
@@ -59,7 +59,7 @@ def test_manager_cannot_view_or_add_interaction_to_other_client(client, app):
 
 def test_admin_can_view_all_client_interactions(client, app):
     with app.app_context():
-        admin = create_user("admin", "admin@example.com", role="admin")
+        create_user("admin", "admin@example.com", role="admin")
         manager = create_user("manager", "manager@example.com")
         customer = create_client_record("Managed client", manager.id)
         create_interaction_record("Manager note", customer.id, manager.id)

@@ -1,8 +1,9 @@
 from flask import Flask
-from .config import Config
-from .extensions import csrf, db, login_manager, migrate
-from app.api.routes import api_bp
+
+from app.config import Config
+from app.extensions import csrf, db, login_manager, migrate
 from app.models import User
+from app.api.routes import api_bp
 from app.auth.routes import auth_bp
 from app.deals.routes import deals_bp
 from app.routes import main_bp

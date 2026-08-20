@@ -102,7 +102,7 @@ def test_admin_sees_all_tasks(client, app):
 
 def test_manager_cannot_edit_complete_or_delete_other_task(client, app):
     with app.app_context():
-        first = create_user("first", "first@example.com")
+        create_user("first", "first@example.com")
         second = create_user("second", "second@example.com")
         hidden = create_task_record("Hidden task", second.id)
         hidden_id = hidden.id

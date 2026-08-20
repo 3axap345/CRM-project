@@ -91,7 +91,7 @@ def test_admin_sees_all_deals(client, app):
 
 def test_manager_cannot_open_or_edit_other_manager_deal(client, app):
     with app.app_context():
-        first = create_user("first", "first@example.com")
+        create_user("first", "first@example.com")
         second = create_user("second", "second@example.com")
         hidden_client = create_client_record("Hidden client", second.id)
         hidden_deal = create_deal_record("Hidden deal", hidden_client.id, second.id)
