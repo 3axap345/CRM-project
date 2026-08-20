@@ -2,7 +2,12 @@ from flask_wtf import FlaskForm
 from wtforms import DateField, DecimalField, SelectField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length, NumberRange, Optional
 
-from app.models.user import DEAL_STATUS_CHOICES, TASK_PRIORITY_CHOICES, TASK_STATUS_CHOICES
+from app.models.user import (
+    DEAL_STATUS_CHOICES,
+    INTERACTION_TYPE_CHOICES,
+    TASK_PRIORITY_CHOICES,
+    TASK_STATUS_CHOICES,
+)
 
 
 class ClientForm(FlaskForm):
@@ -43,4 +48,10 @@ class TaskForm(FlaskForm):
     client_id = SelectField("Client", coerce=int, validators=[Optional()])
     deal_id = SelectField("Deal", coerce=int, validators=[Optional()])
     assigned_to = SelectField("Assigned to", coerce=int, validators=[DataRequired()])
+    submit = SubmitField("Save")
+
+
+class InteractionForm(FlaskForm):
+    type = SelectField("Type", choices=list(INTERACTION_TYPE_CHOICES), default="note")
+    content = TextAreaField("Content", validators=[DataRequired(), Length(max=3000)])
     submit = SubmitField("Save")

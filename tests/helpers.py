@@ -1,5 +1,5 @@
 from app.extensions import db
-from app.models.user import Client, Deal, Task, User
+from app.models.user import Client, Deal, Interaction, Task, User
 
 
 def create_user(username, email, password="password", role="manager"):
@@ -44,6 +44,18 @@ def create_task_record(title, assigned_to, client_id=None, deal_id=None, due_dat
     db.session.add(task)
     db.session.commit()
     return task
+
+
+def create_interaction_record(content, client_id, author_id, type="note"):
+    interaction = Interaction(
+        content=content,
+        client_id=client_id,
+        author_id=author_id,
+        type=type,
+    )
+    db.session.add(interaction)
+    db.session.commit()
+    return interaction
 
 
 def login(test_client, email, password="password"):

@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 from app import db
-from app.forms import ClientForm
-from app.models.user import Client
+from app.forms import ClientForm, InteractionForm
+from app.models.user import Client, Interaction
 
 main_bp = Blueprint("main", __name__)
 
@@ -94,6 +94,57 @@ def edit_client(id):
         return redirect(url_for("main.clients"))
 
     return render_template("edit_client.html", client=client, form=form)
+
+
+@main_bp.route("/clients/<int:id>")
+@login_required
+def client_detail(id):
+    client = get_visible_client_or_404(id)
+    interaction_form = InteractionForm()
+    interactions = client.interactions.order_by(Interaction.created_at.desc()).all()
+
+    return render_template(
+        "client_detail.html",
+        client=client,
+        interaction_form=interaction_form,
+        interactions=interactions,
+    )
+
+
+@main_bp.route("/clients/<int:id>/interactions/add", methods=["POST"])
+@login_required
+def add_interaction(id):
+    client = get_visible_client_or_404(id)
+    form = InteractionForm()
+
+    if form.validate_on_submit():
+        interaction = Interaction(
+            type=form.type.data,
+            content=form.content.data.strip(),
+            client_id=client.id,
+            author_id=current_user.id,
+        )
+        db.session.add(interaction)
+        db.session.commit()
+        flash("Interaction added.", "success")
+    else:
+        flash("Interaction content is required.", "danger")
+
+    return redirect(url_for("main.client_detail", id=client.id))
+
+
+@main_bp.route("/clients/<int:client_id>/interactions/<int:interaction_id>/delete", methods=["POST"])
+@login_required
+def delete_interaction(client_id, interaction_id):
+    client = get_visible_client_or_404(client_id)
+    interaction = db.get_or_404(Interaction, interaction_id)
+    if interaction.client_id != client.id:
+        abort(404)
+
+    db.session.delete(interaction)
+    db.session.commit()
+    flash("Interaction deleted.", "success")
+    return redirect(url_for("main.client_detail", id=client.id))
 
 
 # Исправлено: удаление только через POST, а не GET

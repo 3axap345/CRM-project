@@ -1,1 +1,1 @@
-from .user import Client, ClientActivity, Deal, Task, User
+from .user import Client, ClientActivity, Deal, Interaction, Task, User

@@ -43,6 +43,19 @@ TASK_PRIORITY_CHOICES = (
 )
 TASK_PRIORITY_VALUES = tuple(value for value, _ in TASK_PRIORITY_CHOICES)
 
+INTERACTION_TYPE_NOTE = "note"
+INTERACTION_TYPE_CALL = "call"
+INTERACTION_TYPE_MEETING = "meeting"
+INTERACTION_TYPE_EMAIL = "email"
+
+INTERACTION_TYPE_CHOICES = (
+    (INTERACTION_TYPE_NOTE, "Note"),
+    (INTERACTION_TYPE_CALL, "Call"),
+    (INTERACTION_TYPE_MEETING, "Meeting"),
+    (INTERACTION_TYPE_EMAIL, "Email"),
+)
+INTERACTION_TYPE_VALUES = tuple(value for value, _ in INTERACTION_TYPE_CHOICES)
+
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -164,6 +177,37 @@ class Task(db.Model):
     )
     deal = db.relationship("Deal", backref=db.backref("tasks", lazy="dynamic"))
     assignee = db.relationship("User", backref=db.backref("tasks", lazy="dynamic"))
+
+
+class Interaction(db.Model):
+    __tablename__ = "interactions"
+    __table_args__ = (
+        db.CheckConstraint(
+            f"type IN {INTERACTION_TYPE_VALUES}",
+            name="ck_interactions_type_valid",
+        ),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(50), default=INTERACTION_TYPE_NOTE, nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    client_id = db.Column(
+        db.Integer,
+        db.ForeignKey("clients.id", name="fk_interaction_client", ondelete="CASCADE"),
+        nullable=False
+    )
+    author_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", name="fk_interaction_author", ondelete="CASCADE"),
+        nullable=False
+    )
+    created_at = db.Column(db.DateTime, default=db.func.now())
+
+    client = db.relationship(
+        "Client",
+        backref=db.backref("interactions", lazy="dynamic", cascade="all, delete-orphan"),
+    )
+    author = db.relationship("User", backref=db.backref("interactions", lazy="dynamic"))
 
 
 class ClientActivity(db.Model):
