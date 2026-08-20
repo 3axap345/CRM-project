@@ -5,3 +5,4 @@ instance/
 *.db
 .env
 migrations/__pycache__/
+.pytest_cache/

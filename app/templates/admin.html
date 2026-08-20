@@ -96,7 +96,7 @@
                             <form method="POST"
                                   action="{{ url_for('main.change_role', id=user.id) }}"
                                   class="d-inline">
-                                <input type="hidden" name="csrf_token" value="{{ session.get('_csrf_token','') }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="role"
                                        value="{{ 'manager' if user.role == 'admin' else 'admin' }}">
                                 <button type="submit"
@@ -111,7 +111,7 @@
                                   action="{{ url_for('main.delete_user', id=user.id) }}"
                                   class="d-inline"
                                   onsubmit="return confirm('Delete user {{ user.username }}?')">
-                                <input type="hidden" name="csrf_token" value="{{ session.get('_csrf_token','') }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" class="btn-icon danger" title="Delete">
                                     <i class="bi bi-trash3" style="font-size:12px"></i>
                                 </button>

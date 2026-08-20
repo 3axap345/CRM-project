@@ -1,21 +1,35 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 from app import db
+from app.forms import ClientForm
 from app.models.user import Client
-from datetime import datetime
 
 main_bp = Blueprint("main", __name__)
+
+
+def client_query_for_current_user():
+    query = Client.query
+    if current_user.role != "admin":
+        query = query.filter_by(manager_id=current_user.id)
+    return query
+
+
+def get_visible_client_or_404(client_id):
+    client = db.get_or_404(Client, client_id)
+    if current_user.role != "admin" and client.manager_id != current_user.id:
+        abort(403)
+    return client
 
 
 @main_bp.route("/")
 @login_required
 def home():
-    total_clients = Client.query.count()
+    client_query = client_query_for_current_user()
+    total_clients = client_query.count()
 
-    # Исправлено: считаем реальные значения по статусу
-    new_count = Client.query.filter_by(status="new").count()
-    in_progress_count = Client.query.filter_by(status="in_progress").count()
-    closed_count = Client.query.filter_by(status="closed").count()
+    new_count = client_query_for_current_user().filter_by(status="new").count()
+    in_progress_count = client_query_for_current_user().filter_by(status="in_progress").count()
+    closed_count = client_query_for_current_user().filter_by(status="closed").count()
 
     return render_template(
         "dashboard.html",
@@ -30,36 +44,27 @@ def home():
 @login_required
 def clients():
     search = request.args.get("search")
+    query = client_query_for_current_user()
 
     if search:
-        clients = Client.query.filter(
+        query = query.filter(
             Client.name.ilike(f"%{search}%")
-        ).all()
-    else:
-        clients = Client.query.all()
+        )
 
+    clients = query.order_by(Client.created_at.desc()).all()
     return render_template("clients.html", clients=clients)
 
 
 @main_bp.route("/clients/add", methods=["GET", "POST"])
 @login_required
 def add_client():
-    if request.method == "POST":
-        name = request.form.get("name", "").strip()
-        phone = request.form.get("phone", "").strip()
-        email = request.form.get("email", "").strip()
-        status = request.form.get("status", "new")
-
-        if not name:
-            flash("Client name is required.", "danger")
-            return render_template("add_client.html")
-
+    form = ClientForm()
+    if form.validate_on_submit():
         new_client = Client(
-            name=name,
-            phone=phone or None,
-            email=email or None,
-            status=status,
-            # Исправлено: привязываем менеджера при создании
+            name=form.name.data.strip(),
+            phone=form.phone.data.strip() or None,
+            email=form.email.data.strip() or None,
+            status=form.status.data,
             manager_id=current_user.id
         )
 
@@ -69,31 +74,26 @@ def add_client():
         flash("Client added successfully.", "success")
         return redirect(url_for("main.clients"))
 
-    return render_template("add_client.html")
+    return render_template("add_client.html", form=form)
 
 
 @main_bp.route("/clients/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit_client(id):
-    # Исправлено: используем db.get_or_404 вместо устаревшего query.get_or_404
-    client = db.get_or_404(Client, id)
+    client = get_visible_client_or_404(id)
+    form = ClientForm(obj=client)
 
-    if request.method == "POST":
-        name = request.form.get("name", "").strip()
-        if not name:
-            flash("Client name is required.", "danger")
-            return render_template("edit_client.html", client=client)
-
-        client.name = name
-        client.phone = request.form.get("phone", "").strip() or None
-        client.email = request.form.get("email", "").strip() or None
-        client.status = request.form.get("status", client.status)
+    if form.validate_on_submit():
+        client.name = form.name.data.strip()
+        client.phone = form.phone.data.strip() or None
+        client.email = form.email.data.strip() or None
+        client.status = form.status.data
 
         db.session.commit()
         flash("Client updated successfully.", "success")
         return redirect(url_for("main.clients"))
 
-    return render_template("edit_client.html", client=client)
+    return render_template("edit_client.html", client=client, form=form)
 
 
 # Исправлено: удаление только через POST, а не GET

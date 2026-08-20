@@ -15,30 +15,27 @@
             <div class="card-header">Client details</div>
             <div class="card-body">
                 <form method="POST">
-                    <input type="hidden" name="csrf_token" value="{{ session.get('_csrf_token','') }}">
+                    {{ form.hidden_tag() }}
 
                     <div class="mb-3">
                         <label class="form-label">Имя <span style="color:#f43f5e">*</span></label>
-                        <input type="text" name="name" class="form-control"
-                               placeholder="John Doe" required autofocus>
+                        {{ form.name(class="form-control", placeholder="John Doe", required=True, autofocus=True) }}
+                        {% for e in form.name.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Phone</label>
-                        <input type="text" name="phone" class="form-control"
-                               placeholder="+1 555 000 0000">
+                        {{ form.phone(class="form-control", placeholder="+1 555 000 0000") }}
+                        {% for e in form.phone.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control"
-                               placeholder="client@example.com">
+                        {{ form.email(class="form-control", placeholder="client@example.com") }}
+                        {% for e in form.email.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
                     </div>
                     <div class="mb-4">
                         <label class="form-label">Status</label>
-                        <select name="status" class="form-select">
-                            <option value="new">🟢 New</option>
-                            <option value="in_progress">🟡 In progress</option>
-                            <option value="closed">⚪ Closed</option>
-                        </select>
+                        {{ form.status(class="form-select") }}
+                        {% for e in form.status.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
                     </div>
 
                     <div class="d-flex gap-2">
