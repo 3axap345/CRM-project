@@ -18,17 +18,6 @@ CRMPro is a Flask-based CRM pet project for managing clients, sales deals, tasks
 - Docker and docker-compose with PostgreSQL.
 - GitHub Actions CI and GHCR image publishing.
 
-## Screenshots
-
-Add screenshots here after running the app locally:
-
-```text
-docs/screenshots/dashboard.png
-docs/screenshots/clients.png
-docs/screenshots/deals.png
-docs/screenshots/tasks.png
-```
-
 ## Stack
 
 - Python 3.11
